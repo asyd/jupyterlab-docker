@@ -1,12 +1,14 @@
 FROM python:alpine
 
 # Install required packages
-RUN apk add --update --virtual=.build-dependencies alpine-sdk nodejs ca-certificates musl-dev gcc python-dev make cmake g++ gfortran libpng-dev freetype-dev libxml2-dev libxslt-dev
+RUN apk add --update --virtual=.build-dependencies alpine-sdk nodejs ca-certificates musl-dev gcc python-dev make cmake g++ gfortran libpng-dev freetype-dev libxml2-dev libxslt-dev postgresql-dev 
 RUN apk add --update git
 
 # Install Jupyter
+RUN pip install -U pip
 RUN pip install jupyter
 RUN pip install ipywidgets
+RUN pip install psycopg2
 RUN jupyter nbextension enable --py widgetsnbextension
 
 # Install JupyterLab
@@ -37,5 +39,9 @@ RUN pip install -r requirements.txt
 
 # Expose Jupyter port & cmd
 EXPOSE 8888
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager@0.33
+RUN jupyter labextension install qgrid@1.0.0
+RUN pip install sqlalchemy
+RUN pip install qgrid==1.0.0
 RUN mkdir -p /opt/app/data
-CMD jupyter lab --ip=* --port=8888 --no-browser --notebook-dir=/opt/app/data
+CMD jupyter lab --ip=* --port=8888 --no-browser --notebook-dir=/opt/app/data --allow-root
